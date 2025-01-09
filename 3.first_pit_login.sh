@@ -82,11 +82,33 @@ check_command "Downloading docs-csm RPM"
 wget "https://release.algol60.net/lib/sle-$(awk -F= '/VERSION=/{gsub(/["-]/, "") ; print tolower($NF)}' /etc/os-release)/libcsm-latest.noarch.rpm" -O /root/libcsm-latest.noarch.rpm
 check_command "Downloading libcsm RPM"
 
-# Download and extract the CSM Tarball with proxy
-echo "Downloading and extracting the CSM Tarball..."
-curl -C - -f -o "/var/www/ephemeral/csm-${CSM_RELEASE}.tar.gz" \
-  "https://release.algol60.net/$(awk -F. '{print "csm-"$1"."$2}' <<< ${CSM_RELEASE})/csm/csm-${CSM_RELEASE}.tar.gz"
-check_command "Downloading CSM tarball"
+FILE="csm-${CSM_RELEASE}.tar.gz"
+
+# Check if the file exists
+while [ ! -f "$FILE" ]; do
+  echo "File $FILE does not exist. Please use scp comnads from PIT to transefer manually to PIT node path -/var/www/ephemeral/"
+  echo "Checking again in 10 minute..."
+  
+  # Sleep for 1 minute (10  mins)
+  sleep 10m
+done
+
+
+# Once the file exists, print a success message
+echo "File $FILE has been found!"
+
+read -p "Are you done with copying  ? (yes/no): " user_response
+if [[ "$user_response" == "yes" ]]; then
+    echo "Proceeding with the script..."
+
+else
+	echo "You need to  transer the csm tar file then come here"
+    exit 1
+fi
+
+
+
+
 
 # Extract the tarball
 tar -zxvf  "${PITDATA}/csm-${CSM_RELEASE}.tar.gz" -C ${PITDATA}
